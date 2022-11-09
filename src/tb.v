@@ -26,7 +26,7 @@ module tb (
     assign segments = outputs[6:0];
 
     // instantiate the DUT
-    seven_segment_seconds #(.MAX_COUNT(100)) seven_segment_seconds(
+    yupferris_bitslam bitslam(
         .io_in  (inputs),
         .io_out (outputs)
         );
