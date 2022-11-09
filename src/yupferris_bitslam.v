@@ -6,18 +6,39 @@ module yupferris_bitslam(
 );
 
     wire clk = io_in[0];
-    wire reset = io_in[1];
 
-    reg [7:0] counter;
+    wire addr_data_sel = io_in[1];
+    wire write_addr = ~addr_data_sel;
+    wire write_data = addr_data_sel;
+    wire [5:0] addr_data = io_in[7:2];
+    wire [5:0] data = addr_data;
 
-    assign io_out = counter;
+    reg [5:0] addr;
 
     always @(posedge clk) begin
-        if (reset) begin
-            counter <= 0;
+        if (write_addr) begin
+            addr <= addr_data;
+        end
+    end
+
+    reg [5:0] max_phase;
+
+    always @(posedge clk) begin
+        if (write_data && addr == 5'h00) begin
+            max_phase <= data;
+        end
+    end
+
+    reg [7:0] phase;
+
+    assign io_out = phase;
+
+    always @(posedge clk) begin
+        if (phase >= max_phase) begin
+            phase <= 8'h00;
         end
         else begin
-            counter <= counter + 1'b1;
+            phase <= phase + 8'h01;
         end
     end
 
