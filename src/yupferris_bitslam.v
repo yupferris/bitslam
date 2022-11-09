@@ -26,7 +26,7 @@ module yupferris_bitslam(
         if (write_data && addr == 5'h00)
             max_clk_div_counter <= data;
     end
-    
+
     reg [5:0] clk_div_counter;
     wire tick = clk_div_counter >= max_clk_div_counter;
 
@@ -39,6 +39,7 @@ module yupferris_bitslam(
         end
     end
 
+    // TODO: Replace with parameterizeable LFSR for different waveforms
     reg [7:0] phase;
 
     always @(posedge clk) begin
@@ -46,6 +47,9 @@ module yupferris_bitslam(
             phase <= phase + 8'h01;
     end
 
+    // TODO: Some kind of volume control
     assign io_out = {7'h00, phase[7]};
+
+    // TODO: More voices?
 
 endmodule
