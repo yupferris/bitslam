@@ -39,16 +39,21 @@ module yupferris_bitslam(
         end
     end
 
-    // TODO: Replace with parameterizeable LFSR for different waveforms
-    reg [7:0] phase;
+    reg [7:0] lfsr;
 
     always @(posedge clk) begin
-        if (tick)
-            phase <= phase + 8'h01;
+        if (tick) begin
+            if (lfsr == 8'h00) begin
+                lfsr <= 8'h01;
+            end
+            else begin
+                lfsr <= {lfsr[6:0], lfsr[3] ^ lfsr[6] ^ lfsr[7]};
+            end
+        end
     end
 
     // TODO: Some kind of volume control
-    assign io_out = {7'h00, phase[7]};
+    assign io_out = {7'h00, lfsr[0]};
 
     // TODO: More voices?
 
