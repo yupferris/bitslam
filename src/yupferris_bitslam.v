@@ -39,25 +39,26 @@ module yupferris_bitslam(
         end
     end
 
-    reg [2:0] lfsr_tap_mask;
+    reg [3:0] lfsr_tap_mask;
 
     always @(posedge clk) begin
         if (write_data && addr == 5'h01)
-            lfsr_tap_mask <= data[2:0];
+            lfsr_tap_mask <= data[3:0];
     end
 
-    reg [7:0] lfsr;
-    wire tap3 = lfsr[3] & lfsr_tap_mask[0];
-    wire tap6 = lfsr[6] & lfsr_tap_mask[1];
-    wire tap7 = lfsr[7] & lfsr_tap_mask[2];
+    reg [9:0] lfsr;
+    wire tap1 = lfsr[1] & lfsr_tap_mask[0];
+    wire tap4 = lfsr[4] & lfsr_tap_mask[1];
+    wire tap6 = lfsr[6] & lfsr_tap_mask[2];
+    wire tap9 = lfsr[9] & lfsr_tap_mask[3];
 
     always @(posedge clk) begin
         if (tick) begin
-            if (lfsr == 8'h00) begin
-                lfsr <= 8'h01;
+            if (lfsr == 10'h00) begin
+                lfsr <= 10'h01;
             end
             else begin
-                lfsr <= {lfsr[6:0], tap3 ^ tap6 ^ tap7};
+                lfsr <= {lfsr[8:0], tap1 ^ tap4 ^ tap6 ^ tap9};
             end
         end
     end
