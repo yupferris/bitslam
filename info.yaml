@@ -16,7 +16,7 @@ documentation:
   author:       "Jake \"ferris\" Taylor"      # Your name
   discord:      "yupferris#1454"      # Your discord handle
   title:        "bitslam"      # Project title
-  description:  "TODO"      # Short description of what your project does
+  description:  "Special thanks to Daniel \"trilader\" Schulte for pointing out a crucial interconnect bug."      # Short description of what your project does
   how_it_works: "TODO"      # Longer description of how the project works
   how_to_test:  "TODO"      # Instructions on how someone could test your project, include things like what buttons do what and how to set the clock if needed
   external_hw:  ""      # Describe any external hardware needed
