@@ -1,29 +1,18 @@
 `default_nettype none
 
-module yupferris_bitslam(
-    input [7:0] io_in,
-    output [7:0] io_out
+// TODO: Move?
+module voice(
+    input clk,
+    input addr,
+    input write_data,
+    input [5:0] data,
+    output out
 );
-
-    wire clk = io_in[0];
-
-    wire addr_data_sel = io_in[1];
-    wire write_addr = ~addr_data_sel;
-    wire write_data = addr_data_sel;
-    wire [5:0] addr_data = io_in[7:2];
-    wire [5:0] data = addr_data;
-
-    reg [5:0] addr;
-
-    always @(posedge clk) begin
-        if (write_addr)
-            addr <= addr_data;
-    end
 
     reg [5:0] max_clk_div_counter;
 
     always @(posedge clk) begin
-        if (write_data && addr == 5'h00)
+        if (write_data && ~addr)
             max_clk_div_counter <= data;
     end
 
@@ -42,7 +31,7 @@ module yupferris_bitslam(
     reg [3:0] lfsr_tap_mask;
 
     always @(posedge clk) begin
-        if (write_data && addr == 5'h01)
+        if (write_data && addr)
             lfsr_tap_mask <= data[3:0];
     end
 
@@ -64,8 +53,51 @@ module yupferris_bitslam(
     end
 
     // TODO: Some kind of volume control
-    assign io_out = {7'h00, lfsr[0]};
+    assign out = lfsr[0];
 
-    // TODO: More voices?
+endmodule
+
+module yupferris_bitslam(
+    input [7:0] io_in,
+    output [7:0] io_out
+);
+
+    wire clk = io_in[0];
+
+    wire addr_data_sel = io_in[1];
+    wire write_addr = ~addr_data_sel;
+    wire write_data = addr_data_sel;
+    wire [5:0] addr_data = io_in[7:2];
+    wire [5:0] data = addr_data;
+
+    reg [1:0] addr;
+
+    always @(posedge clk) begin
+        if (write_addr)
+            addr <= addr_data[1:0];
+    end
+
+    wire voice_select = addr[1];
+
+    wire voice0_out;
+    voice voice0(
+        .clk(clk),
+        .addr(addr[0]),
+        .write_data(write_data & ~voice_select),
+        .data(data),
+        .out(voice0_out)
+    );
+
+    wire voice1_out;
+    voice voice1(
+        .clk(clk),
+        .addr(addr[0]),
+        .write_data(write_data & voice_select),
+        .data(data),
+        .out(voice0_out)
+    );
+
+    // TODO: Proper mixer!!!
+    assign io_out = {6'h00, voice0_out, voice1_out};
 
 endmodule
