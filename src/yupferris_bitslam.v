@@ -130,6 +130,8 @@ module yupferris_bitslam(
         .clk(clk),
         .write_data(write_data & mixer_select),
         .data(data),
+        .voice0_out(voice0_out),
+        .voice1_out(voice1_out),
         .out(mixer_out)
     );
 
