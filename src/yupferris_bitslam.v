@@ -1,6 +1,5 @@
 `default_nettype none
 
-// TODO: Move?
 module voice(
     input clk,
     input addr,
@@ -52,8 +51,33 @@ module voice(
         end
     end
 
-    // TODO: Some kind of volume control
     assign out = lfsr[0];
+
+endmodule
+
+module mixer(
+    input clk,
+    input write_data,
+    input [5:0] data,
+    input voice0_out,
+    input voice1_out,
+    output [3:0] out
+);
+
+    reg [5:0] voice_volumes;
+
+    always @(posedge clk) begin
+        if (write_data)
+            voice_volumes <= data;
+    end
+
+    wire [2:0] voice0_volume = voice_volumes[2:0];
+    wire [2:0] voice1_volume = voice_volumes[5:3];
+
+    wire [2:0] scaled_voice0_out = voice0_out ? voice0_volume : 3'h00;
+    wire [2:0] scaled_voice1_out = voice1_out ? voice1_volume : 3'h00;
+
+    assign out = scaled_voice0_out + scaled_voice1_out;
 
 endmodule
 
@@ -70,20 +94,24 @@ module yupferris_bitslam(
     wire [5:0] addr_data = io_in[7:2];
     wire [5:0] data = addr_data;
 
-    reg [1:0] addr;
+    reg [2:0] addr;
 
     always @(posedge clk) begin
         if (write_addr)
-            addr <= addr_data[1:0];
+            addr <= addr_data[2:0];
     end
 
     wire voice_select = addr[1];
+    wire mixer_select = addr[2];
+
+    wire voice0_select = ~voice_select & ~mixer_select;
+    wire voice1_select = voice_select &~mixer_select;
 
     wire voice0_out;
     voice voice0(
         .clk(clk),
         .addr(addr[0]),
-        .write_data(write_data & ~voice_select),
+        .write_data(write_data & voice0_select),
         .data(data),
         .out(voice0_out)
     );
@@ -92,13 +120,19 @@ module yupferris_bitslam(
     voice voice1(
         .clk(clk),
         .addr(addr[0]),
-        .write_data(write_data & voice_select),
+        .write_data(write_data & voice1_select),
         .data(data),
         .out(voice0_out)
     );
 
-    wire [1:0] mixer_out = voice0_out + voice1_out;
+    wire [3:0] mixer_out;
+    mixer mixer(
+        .clk(clk),
+        .write_data(write_data & mixer_select),
+        .data(data),
+        .out(mixer_out)
+    );
 
-    assign io_out = {6'h00, mixer_out};
+    assign io_out = {2'h00, mixer_out};
 
 endmodule
