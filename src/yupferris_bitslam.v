@@ -97,7 +97,8 @@ module yupferris_bitslam(
         .out(voice0_out)
     );
 
-    // TODO: Proper mixer!!!
-    assign io_out = {6'h00, voice0_out, voice1_out};
+    wire [1:0] mixer_out = voice0_out + voice1_out;
+
+    assign io_out = {6'h00, mixer_out};
 
 endmodule
