@@ -105,7 +105,7 @@ module yupferris_bitslam(
     wire mixer_select = addr[2];
 
     wire voice0_select = ~voice_select & ~mixer_select;
-    wire voice1_select = voice_select &~mixer_select;
+    wire voice1_select = voice_select & ~mixer_select;
 
     wire voice0_out;
     voice voice0(
