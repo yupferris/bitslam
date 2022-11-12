@@ -122,7 +122,7 @@ module yupferris_bitslam(
         .addr(addr[0]),
         .write_data(write_data & voice1_select),
         .data(data),
-        .out(voice0_out)
+        .out(voice1_out)
     );
 
     wire [3:0] mixer_out;
