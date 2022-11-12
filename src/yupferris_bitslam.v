@@ -135,6 +135,6 @@ module yupferris_bitslam(
         .out(mixer_out)
     );
 
-    assign io_out = {2'h00, mixer_out};
+    assign io_out = {4'h00, mixer_out};
 
 endmodule
