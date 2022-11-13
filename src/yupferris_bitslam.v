@@ -11,7 +11,7 @@ module voice(
     reg [5:0] max_clk_div_counter;
 
     always @(posedge clk) begin
-        if (write_data && ~addr)
+        if (write_data & ~addr)
             max_clk_div_counter <= data;
     end
 
@@ -30,7 +30,7 @@ module voice(
     reg [3:0] lfsr_tap_mask;
 
     always @(posedge clk) begin
-        if (write_data && addr)
+        if (write_data & addr)
             lfsr_tap_mask <= data[3:0];
     end
 
